@@ -7,13 +7,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
 public class SimpleSlideShowActivity extends Activity {
 	/** Called when the activity is first created. */
+	Spinner spinnerFile;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -23,7 +27,8 @@ public class SimpleSlideShowActivity extends Activity {
 		// (ImageView)findViewById(R.id.imageViewMain);
 		// imageViewMain.setImageResource(R.drawable.sample);
 
-		Spinner spinnerFile = (Spinner) findViewById(R.id.spinnerFile);
+		spinnerFile = (Spinner) findViewById(R.id.spinnerFile);
+		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item);
 
@@ -38,9 +43,25 @@ public class SimpleSlideShowActivity extends Activity {
 		}
 
 		spinnerFile.setAdapter(adapter);
+		
+		spinnerFile.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				Log.d("Spinner", "Position" + arg2);
+				
+				showImageAtPosition(arg2);
+			}
+			
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				Log.d("Spinner", "Position" + arg0);
+			}
+		});
 	}
 
 	public void showImage(View view) {
+		
 		ImageView imageViewMain = (ImageView) findViewById(R.id.imageViewMain);
 
 		if (view.getId() == R.id.buttonShow) {
@@ -50,5 +71,13 @@ public class SimpleSlideShowActivity extends Activity {
 					.decodeFile("/mnt/sdcard/sample_sd.jpg");
 			imageViewMain.setImageBitmap(bitmap);
 		}
+	}
+	
+	private void showImageAtPosition(int position) {
+		String selectedFile = (String)spinnerFile.getItemAtPosition(position);
+		ImageView imageViewMain = (ImageView)findViewById(R.id.imageViewMain);
+		
+		Bitmap bitmap = BitmapFactory.decodeFile(selectedFile);
+		imageViewMain.setImageBitmap(bitmap);
 	}
 }
