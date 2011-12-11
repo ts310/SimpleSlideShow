@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +18,14 @@ import android.widget.Spinner;
 public class SimpleSlideShowActivity extends Activity {
 	/** Called when the activity is first created. */
 	Spinner spinnerFile;
+	
+	int currentPosition = 0;
+	
+	int interval = 3000;
+	
+	Runnable runnableChangeImage;
+	
+	Handler handler = new Handler();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +67,35 @@ public class SimpleSlideShowActivity extends Activity {
 				Log.d("Spinner", "Position" + arg0);
 			}
 		});
+		
+		runnableChangeImage = new Runnable() {
+			
+			@Override
+			public void run() {
+				currentPosition++;
+				
+				if (currentPosition == spinnerFile.getCount()) {
+					currentPosition = 0;
+				}
+				
+				showImageAtPosition(currentPosition);
+			}
+		};
+		
+		Thread threadTimer = new Thread() {
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(interval);
+					} catch (Exception e) {}
+					
+					handler.post(runnableChangeImage);
+				}
+			}
+		};
+		
+		threadTimer.start();
 	}
 
 	public void showImage(View view) {
